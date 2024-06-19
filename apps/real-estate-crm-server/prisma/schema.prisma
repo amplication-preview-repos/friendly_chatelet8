@@ -1,0 +1,96 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Client {
+  appointments  Appointment[]
+  createdAt     DateTime       @default(now())
+  email         String?
+  firstName     String?
+  id            String         @id @default(cuid())
+  lastName      String?
+  notifications Notification[]
+  phoneNumber   String?
+  updatedAt     DateTime       @updatedAt
+}
+
+model Property {
+  address          String?
+  agentAssignments AgentAssignment[]
+  appointments     Appointment[]
+  createdAt        DateTime          @default(now())
+  description      String?
+  id               String            @id @default(cuid())
+  price            Float?
+  propertyType     String?
+  updatedAt        DateTime          @updatedAt
+}
+
+model Appointment {
+  client     Client?   @relation(fields: [clientId], references: [id])
+  clientId   String?
+  createdAt  DateTime  @default(now())
+  date       DateTime?
+  id         String    @id @default(cuid())
+  notes      String?
+  property   Property? @relation(fields: [propertyId], references: [id])
+  propertyId String?
+  time       DateTime?
+  updatedAt  DateTime  @updatedAt
+}
+
+model AgentAssignment {
+  agent        String?
+  assignedDate DateTime?
+  createdAt    DateTime  @default(now())
+  id           String    @id @default(cuid())
+  property     Property? @relation(fields: [propertyId], references: [id])
+  propertyId   String?
+  updatedAt    DateTime  @updatedAt
+}
+
+model Campaign {
+  createdAt     DateTime       @default(now())
+  description   String?
+  endDate       DateTime?
+  id            String         @id @default(cuid())
+  name          String?
+  notifications Notification[]
+  startDate     DateTime?
+  status        String?
+  updatedAt     DateTime       @updatedAt
+}
+
+model Notification {
+  campaign       Campaign?                  @relation(fields: [campaignId], references: [id])
+  campaignId     String?
+  client         Client?                    @relation(fields: [clientId], references: [id])
+  clientId       String?
+  createdAt      DateTime                   @default(now())
+  id             String                     @id @default(cuid())
+  messageContent String?
+  status         String?
+  typeField      EnumNotificationTypeField?
+  updatedAt      DateTime                   @updatedAt
+}
+
+model User {
+  createdAt DateTime @default(now())
+  email     String?  @unique
+  firstName String?
+  id        String   @id @default(cuid())
+  lastName  String?
+  password  String
+  roles     Json
+  updatedAt DateTime @updatedAt
+  username  String   @unique
+}
+
+enum EnumNotificationTypeField {
+  Option1
+}
